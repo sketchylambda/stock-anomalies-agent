@@ -16,7 +16,7 @@
 
 ---
 
-![AlphaPulse Architecture](assets/architecture.jpg)
+![AlphaPulse Architecture](assets/architecture.png)
 
 ## ✨ Core Features
 * **Live Market Triage:** Dynamically builds the S&P 500 index and fetches 1-month historical pricing for all 500 assets in seconds using `asyncio` and `yfinance`.
@@ -47,7 +47,7 @@ AlphaPulse relies on a specialized, multi-agent architecture within its Python b
 
 ## 📡 System Architecture & A2A Protocol
 
-![AlphaPulse Functional Flow](assets/functional.jpg)
+![AlphaPulse Functional Flow](assets/functional.png)
 
 The infrastructure relies on the **A2A (Agent-to-Agent) Protocol**, a structured communication layer that allows our AI agents to seamlessly hand off context and data payloads without human intervention. 
 
@@ -62,7 +62,7 @@ The infrastructure relies on the **A2A (Agent-to-Agent) Protocol**, a structured
 
 AlphaPulse relies on strict standard deviation modeling to identify assets acting outside their expected historical behavior, ignoring lagging technical indicators like RSI or MACD.
 
-![3-Sigma Divergence Concept](assets/3-sigma-divergence.jpg)
+![3-Sigma Divergence Concept](assets/3-sigma-divergence.png)
 
 The system calculates the Z-Score for every asset using the standard formula:
 $$Z = \frac{X - \mu}{\sigma}$$
@@ -109,19 +109,6 @@ Navigate to `http://localhost:8000` in your browser.
 
 </details>
 
-<details>
-<summary><b>Click to expand cloud deployment instructions</b></summary>
-
-## Serverless Deployment (Google Cloud Run)
-AlphaPulse utilizes Application Default Credentials (ADC), meaning no local JSON keys are required in production. Deploy directly using the `gcloud` CLI:
-```bash
-gcloud run deploy alphapulse-dashboard \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars="GEMINI_API_KEY=your_production_key,GCP_PROJECT_ID=your_project_id"
-```
-</details>
 <div align="center">
 <i>Engineered for the Modern Web.</i>
 </div>
