@@ -10,20 +10,16 @@ def get_sp500_tickers():
     try:
         url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
         
-        # 1. Put on the fake mustache (Pretend to be Chrome on Windows)
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
         
-        # 2. Fetch the page using requests with our fake headers
         response = requests.get(url, headers=headers)
-        response.raise_for_status() # Ensure the request actually succeeded
+        response.raise_for_status() 
         
-        # 3. Pass the raw HTML text into pandas instead of the URL
         table = pd.read_html(response.text)[0]
         tickers = table['Symbol'].tolist()
         
-        # 4. Fix Yahoo Finance hyphen formatting
         tickers = [ticker.replace('.', '-') for ticker in tickers]
         
         return tickers
@@ -73,7 +69,6 @@ def process_single_ticker(ticker):
                 "website": info.get("website", f"https://finance.yahoo.com/quote/{ticker}")
             }
     except Exception:
-        # Silently skip errors (like delisted stocks) to keep the scanner moving fast
         return None
     return None
 
@@ -85,7 +80,7 @@ async def fetch_with_semaphore(semaphore, ticker):
 
 async def scan_market():
     """Concurrently scans the entire S&P 500 in seconds."""
-    # We can finally run the whole list!
+
     tickers = get_sp500_tickers()
     
     # Bouncer: Only allow 20 simultaneous connections to Yahoo Finance
@@ -97,7 +92,7 @@ async def scan_market():
     # Run them all at once and wait for the results
     results = await asyncio.gather(*tasks)
     
-    # Filter out the "None" values (stocks that weren't anomalous)
+    # Filter out the "None" values
     anomalies = [res for res in results if res is not None]
     
     return anomalies
@@ -122,6 +117,6 @@ def get_market_status() -> dict:
         else:
             is_bull = True
     except:
-        is_bull = True # Fallback
+        is_bull = True 
 
     return {"is_open": is_open, "is_bull": bool(is_bull)}

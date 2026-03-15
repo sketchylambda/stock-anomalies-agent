@@ -39,7 +39,7 @@ def insert_anomaly(session_id: str, ticker: str, price: float, z_score: float, r
     """Logs the new analysis to BigQuery with the session ID attached."""
     rows_to_insert = [{
         "timestamp": "AUTO", 
-        "session_id": session_id,  # New field!
+        "session_id": session_id, 
         "ticker": ticker,
         "z_score": z_score,
         "price": price,
@@ -97,7 +97,6 @@ def execute_readonly_sql(query: str) -> str:
     Executes a read-only SQL query against the BigQuery database and returns the results.
     The AI agent uses this tool to fetch actual data for the user.
     """
-    # 1. Hardcoded Python Security Guardrail
     query_upper = query.upper()
     forbidden_words = ["DROP", "DELETE", "UPDATE", "INSERT", "ALTER", "TRUNCATE", "CREATE", "GRANT"]
     if any(word in query_upper for word in forbidden_words):

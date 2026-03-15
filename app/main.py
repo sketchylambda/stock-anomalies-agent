@@ -21,7 +21,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # --- Enterprise Session Management ---
 ACTIVE_SESSIONS = {}
-SESSION_DURATION = 1800  # 30 minutes (in seconds)
+SESSION_DURATION = 1800 
 
 class LoginRequest(BaseModel):
     username: str
@@ -99,18 +99,18 @@ async def trigger_scan():
 @app.post("/api/v1/analyze/{ticker}")
 def run_analysis(ticker: str, price: float, z_score: float, session_id: str):
     try:
-        # 1. Check the Enterprise Vault (BigQuery Cache) first
+        # Check the Enterprise Vault (BigQuery Cache) first
         cached_reasoning = get_cached_analysis(session_id, ticker)
         
         if cached_reasoning:
             print(f"CACHE HIT: Retrieved {ticker} from BigQuery. 0 Tokens used.")
             return {"ticker": ticker, "reasoning": cached_reasoning, "cached": True}
             
-        # 2. If no cache exists, run the expensive Gemini Agent
+        # If no cache exists, run the expensive Gemini Agent
         print(f"CACHE MISS: Generating new Gemini analysis for {ticker}...")
         reasoning = analyze_ticker(ticker, price, z_score)
         
-        # 3. Save the new reasoning to BigQuery so it's cached for next time
+        # Save the new reasoning to BigQuery so it's cached for next time
         insert_anomaly(session_id, ticker, price, z_score, reasoning)
         
         return {"ticker": ticker, "reasoning": reasoning, "cached": False}

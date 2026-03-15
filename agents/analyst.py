@@ -24,7 +24,7 @@ def check_guardrails(text: str) -> bool:
     response = client.models.generate_content(
         model='gemini-3.1-flash-lite-preview',
         contents=prompt,
-        config=types.GenerateContentConfig(temperature=0.0) # Zero creativity for judging
+        config=types.GenerateContentConfig(temperature=0.0)
     )
     return "NO" in response.text.strip().upper()
 
@@ -68,7 +68,6 @@ credentials_config = BigQueryCredentialsConfig(
 )
 
 # Configure the BigQuery tool
-# Note: Using WriteMode.ALLOWED as per your environment, but restricting via prompt
 tool_config = BigQueryToolConfig(
     write_mode=WriteMode.BLOCKED,
     application_name='data_analyst_agent'
@@ -102,7 +101,7 @@ dah_agent = Agent(
     tools=[bigquery_toolset]
 )
 
-# 1. Create a memory service to remember the conversation context
+
 session_service = InMemorySessionService()
 
 dah_runner = InMemoryRunner(agent=dah_agent)
