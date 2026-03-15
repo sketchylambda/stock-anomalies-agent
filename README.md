@@ -49,7 +49,7 @@ AlphaPulse relies on a specialized, multi-agent architecture within its Python b
 
 ![AlphaPulse Functional Flow](assets/architecture.png)
 
-AlphaPulse is built on a high-concurrency, serverless framework designed to bridge the gap between raw statistical processing and agentic reasoning. The architecture follows a Decoupled Multi-Agent Pipeline, where specialized AI roles are strictly separated by security guardrails and data persistence layers.
+AlphaPulse is a high-performance market monitoring platform that scans the S&P 500 for statistical price anomalies. By combining asynchronous Python ingestion with a specialized multi-agent AI pipeline, the system isolates rare 3-Sigma events and provides guardrailed market context—all running from your local machine.
 
 Unlike traditional chatbots, AlphaPulse utilizes an Agent-to-App integration pattern. The backend doesn't just "call an LLM"; it orchestrates a lifecycle where agents interact with live system state:
 
