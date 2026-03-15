@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaPulse | Smart Market Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <nav class="fixed w-full z-40 glass-panel border-b-0 border-white/5 py-4 px-8 flex justify-between items-center">
+        <div class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 tracking-wider">
+            AlphaPulse
+        </div>
+        <div class="flex items-center gap-4 text-sm text-gray-300">
+            <span id="market-status" class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Market Open
+            </span>
+            <a href="/admin" class="hover:text-purple-400 transition">Admin Console</a>
+        </div>
+    </nav>
+
+    <header class="min-h-screen flex flex-col items-center justify-center relative px-4 pt-16">
+        
+        <div id="trend-indicator" class="mb-8 text-center flex flex-col items-center"></div>
+
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 text-center text-white drop-shadow-lg">
+            Smart Market <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Intelligence</span>
+        </h1>
+        
+        <p class="text-gray-400 mb-10 max-w-xl text-center text-lg">
+            Autonomous multi-agent system detecting high-sigma statistical divergences in real-time.
+        </p>
+
+        <div class="w-full max-w-2xl relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input type="text" id="main-search" onkeypress="executeSearch(event)"
+                   class="w-full search-glow bg-black/40 backdrop-blur-md border border-purple-500/30 rounded-2xl py-4 pl-12 pr-32 text-white placeholder-gray-500 focus:outline-none text-lg transition-all" 
+                   placeholder="Search stock. Example: AAPL / Apple">
+            <button onclick="executeSearch({key: 'Enter'})" class="absolute right-2 top-2 bottom-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-lg">
+                Discover
+            </button>
+        </div>
+
+        <div class="absolute bottom-10 animate-bounce text-gray-500 text-sm flex flex-col items-center">
+            <span>Scroll for Live Market Scan</span>
+            <svg class="w-4 h-4 mt-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </header>
+
+    <section id="search-results-section" class="hidden py-10 px-4 md:px-12 relative z-10 border-t border-purple-500/20 bg-black/20">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-2xl font-bold mb-2 text-white flex items-center gap-3">
+                <svg class="w-6 h-6 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                Search Results
+            </h2>
+            <p id="search-meta" class="text-gray-400 mb-8 text-sm">Found matches based on your query.</p>
+            <div id="search-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+
+    <main class="py-20 px-4 md:px-12 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-end mb-10 reveal-on-scroll">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2 text-white">Live System Scan</h2>
+                    <p class="text-gray-400">Assets demonstrating mathematical deviations from historical mean.</p>
+                </div>
+                <button onclick="fetchLiveAnomalies()" class="bg-white/5 border border-white/10 text-white px-4 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Run Live Scan
+                </button>
+            </div>
+            
+            <div id="anomaly-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-gray-500 col-span-3 text-center py-10" id="anomaly-loading">Click 'Run Live Scan' to pull Yahoo Finance data...</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="deep-dive-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="glass-panel w-full max-w-4xl mx-4 rounded-2xl border border-purple-500/30 overflow-hidden relative z-10 transform scale-95 opacity-0 transition-all duration-300" id="modal-content-wrapper">
+            
+            <div class="p-6 md:flex gap-8">
+                <div class="w-full md:w-1/3 border-r border-white/10 pr-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 id="modal-symbol" class="text-3xl font-bold text-white">AAPL</h3>
+                            <p id="modal-name" class="text-sm text-gray-400">Apple Inc.</p>
+                        </div>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+                    </div>
+                    
+                    <div class="text-4xl font-light text-white mb-8" id="modal-price">$0.00</div>
+                    
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between border-b border-white/5 pb-2">
+                            <span class="text-gray-400">Z-Score</span>
+                            <span id="modal-zscore" class="font-mono text-pink-400 font-bold">0.0</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-2">
+                            <span class="text-gray-400">P/E Ratio</span>
+                            <span id="modal-pe" class="font-mono text-white">0</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-2">
+                            <span class="text-gray-400">ROE</span>
+                            <span id="modal-roe" class="font-mono text-white">0%</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-2">
+                            <span class="text-gray-400">Debt/Eq (D/E)</span>
+                            <span id="modal-de" class="font-mono text-white">0</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex flex-col gap-3">
+                        <a id="modal-website" href="#" target="_blank" class="w-full bg-white/5 hover:bg-white/10 flex items-center justify-center gap-2 py-2 rounded border border-white/10 text-sm transition">
+                            Company Website
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-2/3">
+                    <h4 class="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-4 mt-6 md:mt-0">AlphaPulse Intelligence Brief</h4>
+                    <div class="bg-black/30 rounded-xl p-6 border border-white/5 min-h-[250px]">
+                        <p id="modal-ai-reasoning" class="text-gray-300 leading-relaxed text-lg">
+                            Authorizing Gemini Agent... analyzing context...
+                        </p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center text-xs">
+                        <div class="flex gap-2 items-center text-green-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Guardrails Active. Logged to Vault.
+                        </div>
+                        <button onclick="toggleReportForm()" class="text-gray-500 hover:text-pink-400 transition flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                            Report Intelligence
+                        </button>
+                    </div>
+
+                    <div id="report-form-container" class="hidden mt-4 p-4 bg-black/40 border border-pink-500/30 rounded-lg">
+                        <label class="flex items-center gap-2 text-sm text-white mb-3 cursor-pointer">
+                            <input type="checkbox" id="report-checkbox" class="accent-pink-500 w-4 h-4" onchange="validateReportForm()">
+                            I want to report this generated intelligence
+                        </label>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                            <select id="report-category" class="bg-black/50 border border-white/10 rounded p-2 text-sm text-white focus:outline-none focus:border-pink-500" onchange="validateReportForm()">
+                                <option value="">Select Category...</option>
+                                <option value="Inaccurate Intelligence">Inaccurate Intelligence</option>
+                                <option value="Incomplete Intelligence">Incomplete Intelligence</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        
+                        <textarea id="report-description" class="w-full bg-black/50 border border-white/10 rounded p-2 text-sm text-white focus:outline-none focus:border-pink-500 mb-3 hidden" placeholder="Please describe the issue..." rows="2" oninput="validateReportForm()"></textarea>
+                        
+                        <div class="flex justify-end gap-2">
+                            <button onclick="toggleReportForm()" class="px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white transition">Cancel</button>
+                            <button id="submit-report-btn" onclick="submitReport()" class="px-3 py-1.5 rounded text-xs bg-pink-600/50 text-white opacity-50 cursor-not-allowed transition" disabled>Submit Report</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-[60]">
+        <div id="support-chat" class="hidden glass-panel rounded-2xl w-80 md:w-96 mb-4 overflow-hidden shadow-2xl flex flex-col h-[400px] border border-purple-500/30 transition-all">
+            <div class="bg-gradient-to-r from-purple-800 to-indigo-900 p-4 border-b border-white/10 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                    <span class="font-bold text-sm text-white">AlphaPulse Support Agent</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white/70 hover:text-white">&times;</button>
+            </div>
+            
+            <div id="chat-history" class="p-4 flex-grow overflow-y-auto space-y-4 text-sm bg-black/20">
+                <div class="bg-white/5 p-3 rounded-lg border border-white/10 text-gray-200">
+                    Hello! I'm the AlphaPulse platform guide. How can I help you navigate the application or understand financial metrics today? <br><br>
+                    <span class="text-xs text-gray-500 italic">*Note: I cannot provide buying or selling advice.</span>
+                </div>
+            </div>
+            
+            <div class="p-3 border-t border-white/10 bg-black/40 flex gap-2">
+                <input type="text" id="chat-input" class="w-full bg-transparent px-2 py-2 text-white focus:outline-none text-sm" placeholder="Ask a support question...">
+                <button onclick="sendSupportMessage()" class="bg-purple-600 hover:bg-purple-500 p-2 rounded-lg transition">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+        <button onclick="toggleChat()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white float-right transition transform hover:scale-105 border border-white/20">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+        </button>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

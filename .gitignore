@@ -1,0 +1,17 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# GCP Credentials
+gcp-credentials.json
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
