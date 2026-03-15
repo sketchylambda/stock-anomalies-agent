@@ -16,7 +16,7 @@
 
 ---
 
-![AlphaPulse Architecture](assets/architecture.jpg)
+![AlphaPulse Architecture](assets/functional.png)
 
 ## ✨ Core Features
 * **Live Market Triage:** Dynamically builds the S&P 500 index and fetches 1-month historical pricing for all 500 assets in seconds using `asyncio` and `yfinance`.
@@ -45,16 +45,19 @@ AlphaPulse relies on a specialized, multi-agent architecture within its Python b
 
 ---
 
-## 📡 System Architecture & A2A Protocol
+## 📡 System Architecture
 
-![AlphaPulse Functional Flow](assets/functional.jpg)
+![AlphaPulse Functional Flow](assets/architecture.png)
 
-The infrastructure relies on the **A2A (Agent-to-Agent) Protocol**, a structured communication layer that allows our AI agents to seamlessly hand off context and data payloads without human intervention. 
+AlphaPulse is a high-performance market monitoring platform that scans the S&P 500 for statistical price anomalies. By combining asynchronous Python ingestion with a specialized multi-agent AI pipeline, the system isolates rare 3-Sigma events and provides guardrailed market context—all running from your local machine.
 
-1. **Ingestion & Triage:** The FastAPI backend acts as a high-throughput engine, scraping the live ticker list and calculating statistical variances.
-2. **A2A Handoff (Watchman → DAH):** Once the **Watchman Agent** detects a >= 2.0 Z-score, it uses the A2A protocol to pass a structured JSON payload (Ticker, Price, Z-Score) to the **DAH Agent**.
-3. **Data Operations:** The DAH Agent cross-references BigQuery to ensure it hasn't already analyzed this event today. If it's a new event, it generates the insight and caches it.
-4. **A2A Handoff (DAH → Support):** The raw analytical report is passed via A2A to the **Customer Support Agent**, which formats the data for the frontend modal and streams it to the user.
+Unlike traditional chatbots, AlphaPulse utilizes an Agent-to-App integration pattern. The backend doesn't just "call an LLM"; it orchestrates a lifecycle where agents interact with live system state:
+
+1. **Reactive Ingestion**: The FastAPI engine performs a non-blocking asyncio scan of the S&P 500, calculating Z-scores locally to minimize latency.
+
+2. **Stateful Handoff**: Only "Critical" events (>= 2.0 Sigma) are handed off to the AI Layer.
+
+3. **Click-to-Commit Logic**: Data is only persisted to BigQuery when a user interacts with a card. This ensures the database remains a curated "High-Signal" archive rather than a dump of raw market noise.
 
 ---
 
@@ -62,7 +65,7 @@ The infrastructure relies on the **A2A (Agent-to-Agent) Protocol**, a structured
 
 AlphaPulse relies on strict standard deviation modeling to identify assets acting outside their expected historical behavior, ignoring lagging technical indicators like RSI or MACD.
 
-![3-Sigma Divergence Concept](assets/3-sigma-divergence.jpg)
+![3-Sigma Divergence Concept](assets/3-sigma-divergence.png)
 
 The system calculates the Z-Score for every asset using the standard formula:
 $$Z = \frac{X - \mu}{\sigma}$$
@@ -77,7 +80,7 @@ $$Z = \frac{X - \mu}{\sigma}$$
 * **Frontend:** HTML5, Vanilla JS, Tailwind CSS
 * **Backend:** Python 3.10+, FastAPI, Uvicorn, Pandas
 * **Data & AI:** Google Cloud BigQuery, Google GenAI SDK (`google-adk`, `google-genai`)
-* **Infrastructure:** Docker, Google Cloud Run, Google IAM (Application Default Credentials)
+* **Infrastructure:** Docker, Google Cloud Run, Google IAM (To be Included in Future)
 
 ---
 
@@ -109,19 +112,6 @@ Navigate to `http://localhost:8000` in your browser.
 
 </details>
 
-<details>
-<summary><b>Click to expand cloud deployment instructions</b></summary>
-
-## Serverless Deployment (Google Cloud Run)
-AlphaPulse utilizes Application Default Credentials (ADC), meaning no local JSON keys are required in production. Deploy directly using the `gcloud` CLI:
-```bash
-gcloud run deploy alphapulse-dashboard \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars="GEMINI_API_KEY=your_production_key,GCP_PROJECT_ID=your_project_id"
-```
-</details>
 <div align="center">
 <i>Engineered for the Modern Web.</i>
 </div>
