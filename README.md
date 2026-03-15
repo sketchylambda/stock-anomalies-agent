@@ -16,7 +16,7 @@
 
 ---
 
-![AlphaPulse Architecture](assets/architecture.png)
+![AlphaPulse Architecture](assets/functional.png)
 
 ## ✨ Core Features
 * **Live Market Triage:** Dynamically builds the S&P 500 index and fetches 1-month historical pricing for all 500 assets in seconds using `asyncio` and `yfinance`.
@@ -45,16 +45,19 @@ AlphaPulse relies on a specialized, multi-agent architecture within its Python b
 
 ---
 
-## 📡 System Architecture & A2A Protocol
+## 📡 System Architecture
 
-![AlphaPulse Functional Flow](assets/functional.png)
+![AlphaPulse Functional Flow](assets/architecture.png)
 
-The infrastructure relies on the **A2A (Agent-to-Agent) Protocol**, a structured communication layer that allows our AI agents to seamlessly hand off context and data payloads without human intervention. 
+AlphaPulse is built on a high-concurrency, serverless framework designed to bridge the gap between raw statistical processing and agentic reasoning. The architecture follows a Decoupled Multi-Agent Pipeline, where specialized AI roles are strictly separated by security guardrails and data persistence layers.
 
-1. **Ingestion & Triage:** The FastAPI backend acts as a high-throughput engine, scraping the live ticker list and calculating statistical variances.
-2. **A2A Handoff (Watchman → DAH):** Once the **Watchman Agent** detects a >= 2.0 Z-score, it uses the A2A protocol to pass a structured JSON payload (Ticker, Price, Z-Score) to the **DAH Agent**.
-3. **Data Operations:** The DAH Agent cross-references BigQuery to ensure it hasn't already analyzed this event today. If it's a new event, it generates the insight and caches it.
-4. **A2A Handoff (DAH → Support):** The raw analytical report is passed via A2A to the **Customer Support Agent**, which formats the data for the frontend modal and streams it to the user.
+Unlike traditional chatbots, AlphaPulse utilizes an Agent-to-App integration pattern. The backend doesn't just "call an LLM"; it orchestrates a lifecycle where agents interact with live system state:
+
+1. **Reactive Ingestion**: The FastAPI engine performs a non-blocking asyncio scan of the S&P 500, calculating Z-scores locally to minimize latency.
+
+2. **Stateful Handoff**: Only "Critical" events (>= 2.0 Sigma) are handed off to the AI Layer.
+
+3. **Click-to-Commit Logic**: Data is only persisted to BigQuery when a user interacts with a card. This ensures the database remains a curated "High-Signal" archive rather than a dump of raw market noise.
 
 ---
 
@@ -77,7 +80,7 @@ $$Z = \frac{X - \mu}{\sigma}$$
 * **Frontend:** HTML5, Vanilla JS, Tailwind CSS
 * **Backend:** Python 3.10+, FastAPI, Uvicorn, Pandas
 * **Data & AI:** Google Cloud BigQuery, Google GenAI SDK (`google-adk`, `google-genai`)
-* **Infrastructure:** Docker, Google Cloud Run, Google IAM (Application Default Credentials)
+* **Infrastructure:** Docker, Google Cloud Run, Google IAM (To be Included in Future)
 
 ---
 
